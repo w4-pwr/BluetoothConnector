@@ -13,117 +13,85 @@ namespace Bluetooth
     {
         public BluetoothConnector()
         {
-
-           
-
+            //todo
         }
 
-
-        public void component_DiscoverDevicesProgress(object sender, DiscoverDevicesEventArgs e)
-        {
-            // log and save all found devices
-            for (int i = 0; i < e.Devices.Length; i++)
-            {
-                if (e.Devices[i].Remembered)
-                {
-                    Console.WriteLine(e.Devices[i].DeviceName + " (" + e.Devices[i].DeviceAddress + "): Device is known");
-                }
-                else
-                {
-                    Console.WriteLine(e.Devices[i].DeviceName + " (" + e.Devices[i].DeviceAddress + "): Device is unknown");
-                }
-                List<BluetoothDeviceInfo> deviceList = new List<BluetoothDeviceInfo>();
-                deviceList.Add(e.Devices[i]);
-            }
-        }
-
-        private void component_DiscoverDevicesComplete(object sender, DiscoverDevicesEventArgs e)
-        {
-            // log some stuff
-        }
-
-        public void scan()
+        private BluetoothDeviceInfo[] scanRemoteDevices()
         {
             BluetoothRadio.PrimaryRadio.Mode = RadioMode.Connectable;
             BluetoothClient client = new BluetoothClient();
-            BluetoothDeviceInfo[] devices = client.DiscoverDevices();
-            BluetoothClient bluetoothClient = new BluetoothClient();
-            String authenticated;
-            String classOfDevice;
-            String connected;
-            String deviceAddress;
-            String deviceName;
-            String installedServices;
-            String lastSeen;
-            String lastUsed;
-            String remembered;
-            String rssi;
-            foreach (BluetoothDeviceInfo device in devices)
-            {
-                authenticated = device.Authenticated.ToString();
-                classOfDevice = device.ClassOfDevice.ToString();
-                connected = device.Connected.ToString();
-                deviceAddress = device.DeviceAddress.ToString();
-                deviceName = device.DeviceName.ToString();
-                installedServices = device.InstalledServices.ToString();
-                lastSeen = device.LastSeen.ToString();
-                lastUsed = device.LastUsed.ToString();
-                remembered = device.Remembered.ToString();
-                rssi = device.Rssi.ToString();
-
-
-                BluetoothSecurity.PairRequest(device.DeviceAddress, Console.ReadLine());
-
-                string[] row = new string[] { authenticated, classOfDevice, connected, deviceAddress, deviceName, installedServices, lastSeen, lastUsed, remembered, rssi };
-                foreach(String s in row)
-                {
- 
-                    Console.WriteLine(s);
-                }
-            }
-
-            BluetoothDeviceInfo[] paired = client.DiscoverDevices(255, false, true, false, false);
-            // check every discovered device if it is already paired 
-            foreach (BluetoothDeviceInfo device in devices)
-            {
-                bool isPaired = false;
-                for (int i = 0; i < paired.Length; i++)
-                {
-                    if (device.Equals(paired[i]))
-                    {
-                        isPaired = true;
-                        break;
-                    }
-                }
-
-                // if the device is not paired, pair it!
-                if (!isPaired)
-                {
-                    // replace DEVICE_PIN here, synchronous method, but fast
-                    isPaired = BluetoothSecurity.PairRequest(device.DeviceAddress, "6969");
-                    if (isPaired)
-                    {
-                        // now it is paired
-                    }
-                    else
-                    {
-                        // pairing failed
-                    }
-                }
-            }
+            return client.DiscoverDevices();
         }
-        
-        public String getAddr()
+
+        public void scanAndShow()
         {
-            BluetoothRadio myRadio = BluetoothRadio.PrimaryRadio;
-            if (myRadio != null)
+            BluetoothDeviceInfo[] devices = scanRemoteDevices();
+            foreach (BluetoothDeviceInfo device in devices)
             {
-                RadioMode mode = myRadio.Mode;
-                return myRadio.LocalAddress.ToString();
+                Console.WriteLine("***************************");
+                Console.WriteLine("Authenticated: " + device.Authenticated.ToString());
+                Console.WriteLine("Class of Device: " + device.ClassOfDevice.ToString());
+                Console.WriteLine("Connected: " + device.Connected.ToString());
+                Console.WriteLine("Device Address: " + device.DeviceAddress.ToString());
+                Console.WriteLine("Device Name: " + device.DeviceName.ToString());
+                Console.WriteLine("InstalledServices: " + device.InstalledServices.ToString());
+                Console.WriteLine("Last seen: " + device.LastSeen.ToString());
+                Console.WriteLine("Last used: " + device.LastUsed.ToString());
+                Console.WriteLine("Remembered: " + device.Remembered.ToString());
+                Console.WriteLine("RSSI: " + device.Rssi.ToString());
+            }
+
+        }
+
+        public void pair(BluetoothDeviceInfo device)
+        {
+        }
+
+        public void showAllRadios()
+        {
+            BluetoothRadio[] radios = BluetoothRadio.AllRadios;
+            foreach (BluetoothRadio btradio in radios)
+            {
+                showRadioInfo(btradio);
+            }
+
+        }
+
+        public void showRadioInfo(BluetoothRadio radio = null)
+        {
+            if (radio == null)
+            {
+                radio = BluetoothRadio.PrimaryRadio;
+            }
+
+            if (radio != null)
+            {
+                RadioMode mode = radio.Mode;
+                Console.WriteLine("***************************");
+                Console.WriteLine("Name: " + radio.Name);
+                Console.WriteLine("Manufacturer: " + radio.Manufacturer);
+                Console.WriteLine("Class of device: " + radio.ClassOfDevice);
+                Console.WriteLine("Hardware status: " + radio.HardwareStatus);
+                Console.WriteLine("Local address: " + radio.LocalAddress);
+                Console.WriteLine("Software Manufacturer: " + radio.SoftwareManufacturer);
             }
             else
             {
-                throw new Exception("NO BLUETOOTH");
+                Console.WriteLine("No primary radio");
+            }
+        }
+
+        public String getPrimaryRadioAddress()
+        {
+            BluetoothRadio primaryRadio = BluetoothRadio.PrimaryRadio;
+            if (primaryRadio != null)
+            {
+                RadioMode mode = primaryRadio.Mode;
+                return primaryRadio.LocalAddress.ToString();
+            }
+            else
+            {
+                throw new Exception("No primary radio");
             }
 
         }

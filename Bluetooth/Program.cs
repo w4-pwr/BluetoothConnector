@@ -10,10 +10,14 @@ namespace Bluetooth
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("BluetoothConnector 0.1");
             BluetoothConnector bc = new BluetoothConnector();
-            bc.getAddr();
-            bc.scan();
-            Console.WriteLine("Testy");
+            bc.getPrimaryRadioAddress();
+            Console.WriteLine("\nShow all radios");
+            bc.showAllRadios();
+
+            Console.WriteLine("\nScanning...");
+            bc.scanAndShow();
             Console.ReadLine();
         }
     }
