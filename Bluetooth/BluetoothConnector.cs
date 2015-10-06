@@ -8,27 +8,41 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Bluetooth
-{
+{   
+    
     class BluetoothConnector
     {
+       BluetoothDeviceInfo[] devices;
+        
         public BluetoothConnector()
         {
-            //todo
+           
+
         }
 
-        private BluetoothDeviceInfo[] scanRemoteDevices()
+        public void scanRemoteDevices()
         {
             BluetoothRadio.PrimaryRadio.Mode = RadioMode.Connectable;
             BluetoothClient client = new BluetoothClient();
-            return client.DiscoverDevices();
+            devices = client.DiscoverDevices();
+          
         }
 
         public void scanAndShow()
         {
-            BluetoothDeviceInfo[] devices = scanRemoteDevices();
+            if (devices == null)
+            {   
+
+                Console.Write("Should be scanned first");
+              
+            }
+            int i = 0;
             foreach (BluetoothDeviceInfo device in devices)
-            {
+            {   
                 Console.WriteLine("***************************");
+                Console.WriteLine(devices.GetEnumerator());
+                Console.WriteLine(i);
+                i++;
                 Console.WriteLine("Authenticated: " + device.Authenticated.ToString());
                 Console.WriteLine("Class of Device: " + device.ClassOfDevice.ToString());
                 Console.WriteLine("Connected: " + device.Connected.ToString());
@@ -42,10 +56,24 @@ namespace Bluetooth
             }
 
         }
-
-        public void pair(BluetoothDeviceInfo device)
+        
+        public void  pair(int index)
         {
+
+
+            
+            BluetoothDeviceInfo device = devices[index];
+            bool isPaired = BluetoothSecurity.PairRequest(device.DeviceAddress, "0000");
+            if (isPaired)
+            {
+                // now it is paired
+            }
+            else
+            {
+                // pairing failed
+            }
         }
+
 
         public void showAllRadios()
         {
@@ -95,5 +123,8 @@ namespace Bluetooth
             }
 
         }
+
+//        public sendData() { 
+//}
     }
 }

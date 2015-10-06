@@ -15,9 +15,13 @@ namespace Bluetooth
             bc.getPrimaryRadioAddress();
             Console.WriteLine("\nShow all radios");
             bc.showAllRadios();
-
+            bc.scanRemoteDevices();
             Console.WriteLine("\nScanning...");
             bc.scanAndShow();
+
+            Console.WriteLine("\nWith witch device you want to connect?...");
+            int index = Convert.ToInt32(Console.ReadLine());
+            bc.pair(index);
             Console.ReadLine();
         }
     }
