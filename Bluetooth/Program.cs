@@ -12,17 +12,25 @@ namespace Bluetooth
         {
             Console.WriteLine("BluetoothConnector 0.1");
             BluetoothConnector bc = new BluetoothConnector();
-            bc.getPrimaryRadioAddress();
+         
+            Console.WriteLine("Local address, primary radio: " + bc.getPrimaryRadioAddress());
             Console.WriteLine("\nShow all radios");
             bc.showAllRadios();
-            bc.scanRemoteDevices();
-            Console.WriteLine("\nScanning...");
-            bc.scanAndShow();
 
-            Console.WriteLine("\nWith witch device you want to connect?...");
-            int index = Convert.ToInt32(Console.ReadLine());
-            bc.pair(index);
+            Console.WriteLine("\nScanning...");
+            bc.scanRemoteDevices();
+            bc.showDiscoveredDevices();
+
+//            Console.WriteLine("\nWith witch device you want to connect?...");
+//            int index = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("Waiting...");
+            bc.reciveFile();
             Console.ReadLine();
+        }
+
+        private void menu()
+        {
+            
         }
     }
 }
