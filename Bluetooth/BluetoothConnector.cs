@@ -16,16 +16,11 @@ namespace Bluetooth
     {
         BluetoothDeviceInfo[] _devices;
 
-        public BluetoothConnector()
-        {
-        }
-
         public void scanRemoteDevices()
         {
             BluetoothRadio.PrimaryRadio.Mode = RadioMode.Connectable;
             BluetoothClient client = new BluetoothClient();
-            _devices = client.DiscoverDevices();
-
+            _devices = client.DiscoverDevicesInRange();
         }
 
         public void showDiscoveredDevices()
@@ -34,27 +29,32 @@ namespace Bluetooth
             {
                 Console.Write("Should be scanned first");
             }
-            int i = 0;
-            foreach (BluetoothDeviceInfo device in _devices)
+            else
             {
-                Console.WriteLine("***********| " + i++ + " |***********");
-                Console.WriteLine("Authenticated: " + device.Authenticated.ToString());
-                Console.WriteLine("Class of Device: " + device.ClassOfDevice.ToString());
-                Console.WriteLine("Connected: " + device.Connected.ToString());
-                Console.WriteLine("Device Address: " + device.DeviceAddress.ToString());
-                Console.WriteLine("Device Name: " + device.DeviceName.ToString());
-                Console.WriteLine("InstalledServices: " + device.InstalledServices.ToString());
-                Console.WriteLine("Last seen: " + device.LastSeen.ToString());
-                Console.WriteLine("Last used: " + device.LastUsed.ToString());
-                Console.WriteLine("Remembered: " + device.Remembered.ToString());
-                Console.WriteLine("RSSI: " + device.Rssi.ToString());
+                int i = 0;
+                foreach (BluetoothDeviceInfo device in _devices)
+                {
+                    Console.WriteLine("***********| " + i++ + " |***********");
+                    Console.WriteLine("Authenticated: " + device.Authenticated.ToString());
+                    Console.WriteLine("Class of Device: " + device.ClassOfDevice.ToString());
+                    Console.WriteLine("Connected: " + device.Connected.ToString());
+                    Console.WriteLine("Device Address: " + device.DeviceAddress.ToString());
+                    Console.WriteLine("Device Name: " + device.DeviceName.ToString());
+                    Console.WriteLine("InstalledServices: " + device.InstalledServices.ToString());
+                    Console.WriteLine("Last seen: " + device.LastSeen.ToString());
+                    Console.WriteLine("Last used: " + device.LastUsed.ToString());
+                    Console.WriteLine("Remembered: " + device.Remembered.ToString());
+                    Console.WriteLine("RSSI: " + device.Rssi.ToString());
+                }
             }
-
         }
 
         public void sendFile(String pathToFile, int index)
         {
-            if (inRangeIndex(index))
+            bool fileExists = pathToFile != null;
+            bool correctDeviceRange = inRangeIndex(index);
+
+            if (fileExists && correctDeviceRange)
             {
                 var file = @pathToFile;
                 var uri = new Uri("obex://" + _devices[index].DeviceAddress + "/" + file);
@@ -64,6 +64,10 @@ namespace Bluetooth
                 Console.WriteLine(response.StatusCode.ToString());
                 response.Close();
             }
+            else
+            {
+                Console.WriteLine("Złe parametry");
+            }
         }
 
         private bool inRangeIndex(int index)
@@ -71,7 +75,7 @@ namespace Bluetooth
             bool correctRange = (index >=0 && index < _devices.Length);
             if (!correctRange)
             {
-                Console.WriteLine("Zły przedział");
+                Console.WriteLine("Zły zakres");
             }
             return correctRange;
         }
@@ -86,6 +90,7 @@ namespace Bluetooth
             String filename = pathSplits[pathSplits.Length - 1];
             request.WriteFile(filename);
             listener.Stop();
+            Console.WriteLine("Odebrano plik!");
         }
 
 
